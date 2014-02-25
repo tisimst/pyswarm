@@ -12,7 +12,7 @@ setup(
     description='Particle swarm optimization (PSO) with constraint support',
     url='https://github.com/tisimst/pyswarm',
     license='BSD License',
-    long_description=read('README'),
+    long_description=read('README.rst'),
     packages=['pyswarm'],
     install_requires=['numpy'],
     keywords=[
