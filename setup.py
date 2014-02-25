@@ -5,7 +5,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name='pywarm',
+    name='pyswarm',
     version="0.5",
     author='Abraham Lee',
     author_email='tisimst@gmail.com',

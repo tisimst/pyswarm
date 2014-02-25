@@ -1,9 +1,9 @@
-======================================================================
-``pyswarm``: Particle swarm optimization (PSO) with constraint support
-======================================================================
+=========================================================
+Particle swarm optimization (PSO) with constraint support
+=========================================================
 
-The ``pyswarm`` package is a gradient-free optimization package for python
-that supports design constraints.
+The ``pyswarm`` package is a gradient-free, evolutionary optimization package 
+for python that supports constraints.
 
 What's New
 ==========
