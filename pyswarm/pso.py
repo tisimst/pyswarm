@@ -43,16 +43,21 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     maxiter : int
         The maximum number of iterations for the swarm to search (Default: 100)
     minstep : scalar
-        The minimum stepsize of swarm's best position (Default: 1e-8)
+        The minimum stepsize of swarm's best position before the search
+        terminates (Default: 1e-8)
     minfunc : scalar
-        The minimum change of swarm's best objective value (Default: 1e-8)
+        The minimum change of swarm's best objective value before the search
+        terminates (Default: 1e-8)
     debug : boolean
         If True, progress statements will be displayed every iteration
         (Default: False)
    
     Returns
     =======
-    g : The swarm's best known position (optimal design)
+    g : array
+        The swarm's best known position (optimal design)
+    f : scalar
+        The objective value at ``g``
    
     """
    

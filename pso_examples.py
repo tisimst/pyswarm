@@ -41,9 +41,9 @@ print '    mycon : ', mycon(xopt2)
 
 print '*'*65
 print 'Engineering example: minimization of twobar truss weight, subject to'
-print '  Yield Stress < 100 psi'
-print '  Yield Stress < Buckling Stress'
-print '  Deflection   < 0.25 inches'
+print '  Yield Stress <= 100 kpsi'
+print '  Yield Stress <= Buckling Stress'
+print '  Deflection   <= 0.25 inches'
 def weight(x, *args):
     H, d, t = x  # all in inches
     B, rho, E, P = args
