@@ -32,7 +32,7 @@ def mycon(x):
 xopt2, fopt2 = pso(myfunc, lb, ub, f_ieqcons=mycon)
 
 print 'The optimum is at:'
-print '    ', xopt2
+print '   ', xopt2
 print 'Optimal function value:'
 print '    myfunc: ', fopt2
 print '    mycon : ', mycon(xopt2)
