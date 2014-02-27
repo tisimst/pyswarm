@@ -1,7 +1,7 @@
 import numpy as np
     
 def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={}, 
-        swarmsize=20, omega=0.5, phip=0.5, phig=0.5, maxiter=100, 
+        swarmsize=20, omega=0.5, phip=0.5, phig=0.5, maxiter=1000, 
         minstep=1e-8, minfunc=1e-8, debug=False):
     """
     Perform a particle swarm optimization (PSO)
@@ -33,15 +33,13 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     swarmsize : int
         The number of particles in the swarm (Default: 20)
     omega : scalar
-        Particle velocity scaling factor (Default: 0.5)
+        Particle's inertia weight (Default: 0.5)
     phip : scalar
-        Scaling factor to search away from the particle's best known position
-        (Default: 0.5)
+        Particle's cognitive weight (Default: 0.5)
     phig : scalar
-        Scaling factor to search away from the swarm's best known position
-        (Default: 0.5)
+        Swarm's social weight (Default: 0.5)
     maxiter : int
-        The maximum number of iterations for the swarm to search (Default: 100)
+        The maximum number of iterations for the swarm to search (Default: 1000)
     minstep : scalar
         The minimum stepsize of swarm's best position before the search
         terminates (Default: 1e-8)
