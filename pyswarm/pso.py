@@ -1,7 +1,7 @@
 import numpy as np
     
 def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={}, 
-        swarmsize=20, omega=0.5, phip=0.5, phig=0.5, maxiter=1000, 
+        swarmsize=10, omega=0.5, phip=0.5, phig=0.5, maxiter=1000, 
         minstep=1e-8, minfunc=1e-8, debug=False):
     """
     Perform a particle swarm optimization (PSO)
@@ -31,7 +31,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
         Additional keyword arguments passed to objective and constraint 
         functions (Default: empty dict)
     swarmsize : int
-        The number of particles in the swarm (Default: 20)
+        The number of particles in the swarm (Default: 10)
     omega : scalar
         Particle's inertia weight (Default: 0.5)
     phip : scalar
