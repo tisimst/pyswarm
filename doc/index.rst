@@ -228,30 +228,28 @@ where the minimum required input arguments are:
 and the optional input keyword-arguments are defined as:
 
     ieqcons : list
-        A list of functions of length n such that ieqcons[j](x,*args) >= 0.0 
-        in a successfully optimized problem (Default: empty list, [])
+        A list of functions of length n such that ieqcons[j](x,*args) >= 0.0 in 
+        a successfully optimized problem (Default: [])
     f_ieqcons : function
-        Returns a 1-D array in which each element must be greater or equal to 
-        0.0 in a successfully optimized problem. If f_ieqcons is specified, 
+        Returns a 1-D array in which each element must be greater or equal 
+        to 0.0 in a successfully optimized problem. If f_ieqcons is specified, 
         ieqcons is ignored (Default: None)
     args : tuple
         Additional arguments passed to objective and constraint functions
-        (Default: empty tuple, ())
+        (Default: empty tuple)
     kwargs : dict
         Additional keyword arguments passed to objective and constraint 
-        functions (Default: empty dict, {})
+        functions (Default: empty dict)
     swarmsize : int
         The number of particles in the swarm (Default: 10)
     omega : scalar
-        Particle velocity scaling factor (Default: 0.5)
+        Particle's inertia weight (Default: 0.5)
     phip : scalar
-        Scaling factor to search away from the particle's best known position
-        (Default: 0.5)
+        Particle's cognitive weight (Default: 0.5)
     phig : scalar
-        Scaling factor to search away from the swarm's best known position
-        (Default: 0.5)
+        Swarm's social weight (Default: 0.5)
     maxiter : int
-        The maximum number of iterations for the swarm to search (Default: 100)
+        The maximum number of iterations for the swarm to search (Default: 1000)
     minstep : scalar
         The minimum stepsize of swarm's best position before the search
         terminates (Default: 1e-8)
@@ -259,7 +257,7 @@ and the optional input keyword-arguments are defined as:
         The minimum change of swarm's best objective value before the search
         terminates (Default: 1e-8)
     debug : boolean
-        If True, progress statements will be displayed every iteration 
+        If True, progress statements will be displayed every iteration
         (Default: False)
 
 We could have written the constraint function to return a scalar value instead
