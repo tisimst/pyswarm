@@ -213,7 +213,7 @@ follows:
 .. code-block:: python
 
    pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={}, 
-       swarmsize=100, omega=0.5, phip=0.5, phig=0.5, maxiter=100, minstep=1e-8,
+       swarmsize=20, omega=1, phip=2, phig=2, maxiter=100, minstep=1e-8,
        minfunc=1e-8, debug=False)
 
 where the minimum required input arguments are:
@@ -241,15 +241,15 @@ and the optional input keyword-arguments are defined as:
         Additional keyword arguments passed to objective and constraint 
         functions (Default: empty dict, {})
     swarmsize : int
-        The number of particles in the swarm (Default: 100)
+        The number of particles in the swarm (Default: 20)
     omega : scalar
-        Particle velocity scaling factor (Default: 0.5)
+        Particle velocity scaling factor (Default: 1)
     phip : scalar
         Scaling factor to search away from the particle's best known position
-        (Default: 0.5)
+        (Default: 2)
     phig : scalar
         Scaling factor to search away from the swarm's best known position
-        (Default: 0.5)
+        (Default: 2)
     maxiter : int
         The maximum number of iterations for the swarm to search (Default: 100)
     minstep : scalar
