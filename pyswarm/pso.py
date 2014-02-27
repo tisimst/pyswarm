@@ -151,10 +151,12 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
                     tmp = x[i, :].copy()
                     stepsize = np.sqrt(np.sum((g-tmp)**2))
                     if np.abs(fg - fx)<=minfunc:
-                        print 'Stopping search: Swarm best objective change less than:', minfunc
+                        if debug:
+                            print 'Stopping search: Swarm best objective change less than:', minfunc
                         return tmp, fx
                     elif stepsize<=minstep:
-                        print 'Stopping search: Swarm best position change less than:', minstep
+                        if debug:
+                            print 'Stopping search: Swarm best position change less than:', minstep
                         return tmp, fx
                     else:
                         g = tmp.copy()
@@ -164,9 +166,10 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
             print 'Best after iteration %d'%it, g, fg
         it += 1
 
-    print 'Stopping search: maximum iterations reached -->', maxiter
+    if debug:
+        print 'Stopping search: maximum iterations reached -->', maxiter
     
     if g is []:
-        print 'No feasible point found'
+        print 'Warning: No feasible point found'
     return g, fg
 
