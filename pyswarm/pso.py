@@ -134,30 +134,24 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
         rp = np.random.uniform(size=(S, D))
         rg = np.random.uniform(size=(S, D))
 
-        for i in range(S):
-            # Update the particle's velocity
-            v[i, :] = omega*v[i, :] + phip*rp[i, :]*(p[i, :] - x[i, :]) + \
-                      phig*rg[i, :]*(g - x[i, :])
-                      
-            # Update the particle's position, correcting lower and upper bound 
-            # violations
-            x[i, :] = x[i, :] + v[i, :]
-            mark1 = x[i, :]<lb
-            mark2 = x[i, :]>ub
-            x[i, mark1] = lb[mark1]
-            x[i, mark2] = ub[mark2]
+        # Update the particles velocities
+        v = omega*v + phip*rp*(p - x) + phig*rg*(g - x)
+        # Update the particles' positions
+        x = x + v
+        # Correct for bound violations
+        maskl = x < lb
+        masku = x > ub
+        x = x*(~np.logical_or(maskl, masku)) + lb*maskl + ub*masku
 
+        # Update objectives and constraints
         for i in range(S):
-            # Update the objective value
             fx[i] = obj(x[i, :])
-            # Update list of constraints
             fs[i] = is_feasible(x[i, :])
 
-        for i in range(S):
-            # Compare particle's best position (if constraints are satisfied)
-            if (fx[i] < fp[i]) and fs[i]:
-                p[i, :] = x[i, :].copy()
-                fp[i] = fx[i]
+        # Store particle's best position (if constraints are satisfied)
+        i_update = np.logical_and((fx < fp), fs)
+        p[i_update, :] = x[i_update, :].copy()
+        fp[i_update] = fx[i_update]
 
         # Compare swarm's best position with global best position
         i_min = np.argmin(fp)
