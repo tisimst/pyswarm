@@ -98,7 +98,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     p = np.zeros_like(x)  # best particle positions
     fp = np.zeros(S)  # best particle function values
     g = []  # best swarm position
-    fg = 1e100  # artificial best swarm position starting value
+    fg = np.inf  # best swarm position starting value
     
     for i in range(S):
         # Initialize the particle's position

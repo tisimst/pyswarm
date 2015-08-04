@@ -1,6 +1,6 @@
 """
 ================================================================================
-pyswarm: Particl swarm optimization (PSO) with constraint support
+pyswarm: Particle swarm optimization (PSO) with constraint support
 ================================================================================
 
 Author: Abraham Lee
