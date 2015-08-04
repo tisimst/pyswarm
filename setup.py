@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name='pyswarm',
-    version="0.5",
+    version="0.6",
     author='Abraham Lee',
     author_email='tisimst@gmail.com',
     description='Particle swarm optimization (PSO) with constraint support',
@@ -30,6 +30,9 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
         'Topic :: Education',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Mathematics',

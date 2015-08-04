@@ -1,7 +1,7 @@
 import numpy as np
     
 def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={}, 
-        swarmsize=10, omega=0.5, phip=0.5, phig=0.5, maxiter=1000, 
+        swarmsize=100, omega=0.5, phip=0.5, phig=0.5, maxiter=100, 
         minstep=1e-8, minfunc=1e-8, debug=False):
     """
     Perform a particle swarm optimization (PSO)
@@ -31,15 +31,17 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
         Additional keyword arguments passed to objective and constraint 
         functions (Default: empty dict)
     swarmsize : int
-        The number of particles in the swarm (Default: 10)
+        The number of particles in the swarm (Default: 100)
     omega : scalar
-        Particle's inertia weight (Default: 0.5)
+        Particle velocity scaling factor (Default: 0.5)
     phip : scalar
-        Particle's cognitive weight (Default: 0.5)
+        Scaling factor to search away from the particle's best known position
+        (Default: 0.5)
     phig : scalar
-        Swarm's social weight (Default: 0.5)
+        Scaling factor to search away from the swarm's best known position
+        (Default: 0.5)
     maxiter : int
-        The maximum number of iterations for the swarm to search (Default: 1000)
+        The maximum number of iterations for the swarm to search (Default: 100)
     minstep : scalar
         The minimum stepsize of swarm's best position before the search
         terminates (Default: 1e-8)
@@ -69,20 +71,20 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     vlow = -vhigh
     
     # Check for constraint function(s) #########################################
-    obj = lambda (x): func(x, *args, **kwargs)
+    obj = lambda x: func(x, *args, **kwargs)
     if f_ieqcons is None:
         if not len(ieqcons):
             if debug:
-                print 'No constraints given.'
-            cons = lambda (x): np.array([0])
+                print('No constraints given.')
+            cons = lambda x: np.array([0])
         else:
             if debug:
-                print 'Converting ieqcons to a single constraint function'
-            cons = lambda (x): np.array([y(x, *args, **kwargs) for y in ieqcons])
+                print('Converting ieqcons to a single constraint function')
+            cons = lambda x: np.array([y(x, *args, **kwargs) for y in ieqcons])
     else:
         if debug:
-            print 'Single constraint function given in f_ieqcons'
-        cons = lambda (x): np.array(f_ieqcons(x, *args, **kwargs))
+            print('Single constraint function given in f_ieqcons')
+        cons = lambda x: np.array(f_ieqcons(x, *args, **kwargs))
         
     def is_feasible(x):
         check = np.all(cons(x)>=0)
@@ -98,7 +100,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     g = []  # best swarm position
     fg = 1e100  # artificial best swarm position starting value
     
-    for i in xrange(S):
+    for i in range(S):
         # Initialize the particle's position
         x[i, :] = lb + x[i, :]*(ub - lb)
    
@@ -108,6 +110,11 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
         # Calculate the objective's value at the current particle's
         fp[i] = obj(p[i, :])
        
+        # At the start, there may not be any feasible starting point, so just
+        # give it a temporary "best" point since it's likely to change
+        if i==0:
+            g = p[0, :].copy()
+
         # If the current particle's position is better than the swarm's,
         # update the best swarm position
         if fp[i]<fg and is_feasible(p[i, :]):
@@ -122,7 +129,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     while it<=maxiter:
         rp = np.random.uniform(size=(S, D))
         rg = np.random.uniform(size=(S, D))
-        for i in xrange(S):
+        for i in range(S):
 
             # Update the particle's velocity
             v[i, :] = omega*v[i, :] + phip*rp[i, :]*(p[i, :] - x[i, :]) + \
@@ -146,30 +153,27 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
                 # (Can only get here if constraints are satisfied)
                 if fx<fg:
                     if debug:
-                        print 'New best for swarm at iteration %d:'%it, x[i, :], fx
+                        print('New best for swarm at iteration {:}: {:} {:}'.format(it, x[i, :], fx))
 
                     tmp = x[i, :].copy()
                     stepsize = np.sqrt(np.sum((g-tmp)**2))
                     if np.abs(fg - fx)<=minfunc:
-                        if debug:
-                            print 'Stopping search: Swarm best objective change less than:', minfunc
+                        print('Stopping search: Swarm best objective change less than {:}'.format(minfunc))
                         return tmp, fx
                     elif stepsize<=minstep:
-                        if debug:
-                            print 'Stopping search: Swarm best position change less than:', minstep
+                        print('Stopping search: Swarm best position change less than {:}'.format(minstep))
                         return tmp, fx
                     else:
                         g = tmp.copy()
                         fg = fx
 
         if debug:
-            print 'Best after iteration %d'%it, g, fg
+            print('Best after iteration {:}: {:} {:}'.format(it, g, fg))
         it += 1
 
-    if debug:
-        print 'Stopping search: maximum iterations reached -->', maxiter
+    print('Stopping search: maximum iterations reached --> {:}'.format(maxiter))
     
-    if g is []:
-        print 'Warning: No feasible point found'
+    if not is_feasible(g):
+        print("However, the optimization couldn't find a feasible design. Sorry")
     return g, fg
 
