@@ -1,8 +1,24 @@
+from functools import partial
 import numpy as np
+
+def _obj_wrapper(func, args, kwargs, x):
+    return func(x, *args, **kwargs)
+
+def _is_feasible_wrapper(func, x):
+    return np.all(func(x)>=0)
+
+def _cons_none_wrapper(x):
+    return np.array([0])
+
+def _cons_ieqcons_wrapper(ieqcons, args, kwargs, x):
+    return np.array([y(x, *args, **kwargs) for y in ieqcons])
+
+def _cons_f_ieqcons_wrapper(f_ieqcons, args, kwargs, x):
+    return np.array(f_ieqcons(x, *args, **kwargs))
     
 def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={}, 
         swarmsize=100, omega=0.5, phip=0.5, phig=0.5, maxiter=100, 
-        minstep=1e-8, minfunc=1e-8, debug=False):
+        minstep=1e-8, minfunc=1e-8, debug=False, processes=1):
     """
     Perform a particle swarm optimization (PSO)
    
@@ -51,6 +67,9 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     debug : boolean
         If True, progress statements will be displayed every iteration
         (Default: False)
+    processes
+        The number of processes to use to evaluate objective function and 
+        constraints (default: 1)
    
     Returns
     =======
@@ -69,26 +88,30 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
    
     vhigh = np.abs(ub - lb)
     vlow = -vhigh
+
+    # Initialize objective function
+    obj = partial(_obj_wrapper, func, args, kwargs)
     
     # Check for constraint function(s) #########################################
-    obj = lambda x: func(x, *args, **kwargs)
     if f_ieqcons is None:
         if not len(ieqcons):
             if debug:
                 print('No constraints given.')
-            cons = lambda x: np.array([0])
+            cons = _cons_none_wrapper
         else:
             if debug:
                 print('Converting ieqcons to a single constraint function')
-            cons = lambda x: np.array([y(x, *args, **kwargs) for y in ieqcons])
+            cons = partial(_cons_ieqcons_wrapper, ieqcons, args, kwargs)
     else:
         if debug:
             print('Single constraint function given in f_ieqcons')
-        cons = lambda x: np.array(f_ieqcons(x, *args, **kwargs))
-        
-    def is_feasible(x):
-        check = np.all(cons(x)>=0)
-        return check
+        cons = partial(_cons_f_ieqcons_wrapper, f_ieqcons, args, kwargs)
+    is_feasible = partial(_is_feasible_wrapper, cons)
+
+    # Initialize the multiprocessing module if necessary
+    if processes > 1:
+        import multiprocessing
+        mp_pool = multiprocessing.Pool(processes)
         
     # Initialize the particle swarm ############################################
     S = swarmsize
@@ -106,9 +129,13 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     x = lb + x*(ub - lb)
 
     # Calculate objective and constraints for each particle
-    for i in range(S):
-        fx[i] = obj(x[i, :])
-        fs[i] = is_feasible(x[i, :])
+    if processes > 1:
+        fx = np.array(mp_pool.map(obj, x))
+        fs = np.array(mp_pool.map(is_feasible, x))
+    else:
+        for i in range(S):
+            fx[i] = obj(x[i, :])
+            fs[i] = is_feasible(x[i, :])
        
     # Store particle's best position (if constraints are satisfied)
     i_update = np.logical_and((fx < fp), fs)
@@ -144,9 +171,13 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
         x = x*(~np.logical_or(maskl, masku)) + lb*maskl + ub*masku
 
         # Update objectives and constraints
-        for i in range(S):
-            fx[i] = obj(x[i, :])
-            fs[i] = is_feasible(x[i, :])
+        if processes > 1:
+            fx = np.array(mp_pool.map(obj, x))
+            fs = np.array(mp_pool.map(is_feasible, x))
+        else:
+            for i in range(S):
+                fx[i] = obj(x[i, :])
+                fs[i] = is_feasible(x[i, :])
 
         # Store particle's best position (if constraints are satisfied)
         i_update = np.logical_and((fx < fp), fs)
