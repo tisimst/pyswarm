@@ -96,28 +96,29 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     x = np.random.rand(S, D)  # particle positions
     v = np.zeros_like(x)  # particle velocities
     p = np.zeros_like(x)  # best particle positions
-    fp = np.zeros(S)  # best particle function values
+    fx = np.zeros(S)  # current particle function values
+    fs = np.zeros(S, dtype=bool)  # feasibility of each particle
+    fp = np.ones(S)*np.inf  # best particle function values
     g = []  # best swarm position
     fg = np.inf  # best swarm position starting value
     
+    # Initialize the particle's position
+    x = lb + x*(ub - lb)
+
+    # Calculate objective and constraints for each particle
     for i in range(S):
-        # Initialize the particle's position
-        x[i, :] = lb + x[i, :]*(ub - lb)
-   
-        # Initialize the particle's best known position
-        p[i, :] = x[i, :]
+        fx[i] = obj(x[i, :])
+        fs[i] = is_feasible(x[i, :])
        
-        # Calculate the objective's value at the current particle's
-        fp[i] = obj(p[i, :])
-       
-        # At the start, there may not be any feasible starting point, so just
-        # give it a temporary "best" point since it's likely to change
-        if i==0:
-            g = p[0, :].copy()
+    for i in range(S):
+        # Compare particle's best position (if constraints are satisfied)
+        if (fx[i] < fp[i]) and fs[i]:
+            p[i, :] = x[i, :].copy()
+            fp[i] = fx[i]
 
         # If the current particle's position is better than the swarm's,
         # update the best swarm position
-        if fp[i]<fg and is_feasible(p[i, :]):
+        if fp[i] < fg and fs[i]:
             fg = fp[i]
             g = p[i, :].copy()
        
@@ -126,46 +127,56 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
        
     # Iterate until termination criterion met ##################################
     it = 1
-    while it<=maxiter:
+    while it <= maxiter:
         rp = np.random.uniform(size=(S, D))
         rg = np.random.uniform(size=(S, D))
-        for i in range(S):
 
+        for i in range(S):
             # Update the particle's velocity
             v[i, :] = omega*v[i, :] + phip*rp[i, :]*(p[i, :] - x[i, :]) + \
                       phig*rg[i, :]*(g - x[i, :])
                       
             # Update the particle's position, correcting lower and upper bound 
-            # violations, then update the objective function value
+            # violations
             x[i, :] = x[i, :] + v[i, :]
             mark1 = x[i, :]<lb
             mark2 = x[i, :]>ub
             x[i, mark1] = lb[mark1]
             x[i, mark2] = ub[mark2]
-            fx = obj(x[i, :])
-            
+
+        for i in range(S):
+            # Update the objective value
+            fx[i] = obj(x[i, :])
+            # Update list of constraints
+            fs[i] = is_feasible(x[i, :])
+
+        for i in range(S):
             # Compare particle's best position (if constraints are satisfied)
-            if fx<fp[i] and is_feasible(x[i, :]):
+            if (fx[i] < fp[i]) and fs[i]:
                 p[i, :] = x[i, :].copy()
-                fp[i] = fx
+                fp[i] = fx[i]
 
-                # Compare swarm's best position to current particle's position
-                # (Can only get here if constraints are satisfied)
-                if fx<fg:
-                    if debug:
-                        print('New best for swarm at iteration {:}: {:} {:}'.format(it, x[i, :], fx))
+        # Compare swarm's best position with global best position
+        i_min = np.argmin(fp)
+        if fp[i_min] < fg:
+            if debug:
+                print('New best for swarm at iteration {:}: {:} {:}'\
+                    .format(it, p[i_min, :], fp[i_min]))
 
-                    tmp = x[i, :].copy()
-                    stepsize = np.sqrt(np.sum((g-tmp)**2))
-                    if np.abs(fg - fx)<=minfunc:
-                        print('Stopping search: Swarm best objective change less than {:}'.format(minfunc))
-                        return tmp, fx
-                    elif stepsize<=minstep:
-                        print('Stopping search: Swarm best position change less than {:}'.format(minstep))
-                        return tmp, fx
-                    else:
-                        g = tmp.copy()
-                        fg = fx
+            p_min = p[i_min, :].copy()
+            stepsize = np.sqrt(np.sum((g - p_min)**2))
+
+            if np.abs(fg - fp[i_min]) <= minfunc:
+                print('Stopping search: Swarm best objective change less than {:}'\
+                    .format(minfunc))
+                return p_min, fp[i_min]
+            elif stepsize <= minstep:
+                print('Stopping search: Swarm best position change less than {:}'\
+                    .format(minstep))
+                return p_min, fp[i_min]
+            else:
+                g = p_min.copy()
+                fg = fp[i_min]
 
         if debug:
             print('Best after iteration {:}: {:} {:}'.format(it, g, fg))
