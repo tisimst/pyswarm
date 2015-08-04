@@ -110,20 +110,23 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
         fx[i] = obj(x[i, :])
         fs[i] = is_feasible(x[i, :])
        
-    for i in range(S):
-        # Compare particle's best position (if constraints are satisfied)
-        if (fx[i] < fp[i]) and fs[i]:
-            p[i, :] = x[i, :].copy()
-            fp[i] = fx[i]
+    # Store particle's best position (if constraints are satisfied)
+    i_update = np.logical_and((fx < fp), fs)
+    p[i_update, :] = x[i_update, :].copy()
+    fp[i_update] = fx[i_update]
 
-        # If the current particle's position is better than the swarm's,
-        # update the best swarm position
-        if fp[i] < fg and fs[i]:
-            fg = fp[i]
-            g = p[i, :].copy()
+    # Update swarm's best position
+    i_min = np.argmin(fp)
+    if fp[i_min] < fg:
+        fg = fp[i_min]
+        g = p[i_min, :].copy()
+    else:
+        # At the start, there may not be any feasible starting point, so just
+        # give it a temporary "best" point since it's likely to change
+        g = x[0, :].copy()
        
-        # Initialize the particle's velocity
-        v[i, :] = vlow + np.random.rand(D)*(vhigh - vlow)
+    # Initialize the particle's velocity
+    v = vlow + np.random.rand(S, D)*(vhigh - vlow)
        
     # Iterate until termination criterion met ##################################
     it = 1
