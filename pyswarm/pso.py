@@ -18,7 +18,8 @@ def _cons_f_ieqcons_wrapper(f_ieqcons, args, kwargs, x):
     
 def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={}, 
         swarmsize=100, omega=0.5, phip=0.5, phig=0.5, maxiter=100, 
-        minstep=1e-8, minfunc=1e-8, debug=False, processes=1):
+        minstep=1e-8, minfunc=1e-8, debug=False, processes=1,
+        particle_output=False):
     """
     Perform a particle swarm optimization (PSO)
    
@@ -67,9 +68,12 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     debug : boolean
         If True, progress statements will be displayed every iteration
         (Default: False)
-    processes
+    processes : int
         The number of processes to use to evaluate objective function and 
         constraints (default: 1)
+    particle_output : boolean
+        Whether to include the best per-particle position and the objective
+        values at those.
    
     Returns
     =======
@@ -77,6 +81,10 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
         The swarm's best known position (optimal design)
     f : scalar
         The objective value at ``g``
+    p : array
+        The best known position per particle
+    pf: arrray
+        The objective values at each position in p
    
     """
    
@@ -197,11 +205,17 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
             if np.abs(fg - fp[i_min]) <= minfunc:
                 print('Stopping search: Swarm best objective change less than {:}'\
                     .format(minfunc))
-                return p_min, fp[i_min]
+                if particle_output:
+                    return p_min, fp[i_min], p, fp
+                else:
+                    return p_min, fp[i_min]
             elif stepsize <= minstep:
                 print('Stopping search: Swarm best position change less than {:}'\
                     .format(minstep))
-                return p_min, fp[i_min]
+                if particle_output:
+                    return p_min, fp[i_min], p, fp
+                else:
+                    return p_min, fp[i_min]
             else:
                 g = p_min.copy()
                 fg = fp[i_min]
@@ -214,5 +228,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
     
     if not is_feasible(g):
         print("However, the optimization couldn't find a feasible design. Sorry")
-    return g, fg
-
+    if particle_output:
+        return g, fg, p, fp
+    else:
+        return g, fg
