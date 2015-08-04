@@ -8,7 +8,7 @@ for python that supports constraints.
 What's New
 ==========
 
-In this release, we've added Python3 compatibility.
+This release features multiprocessing support.
 
 Requirements
 ============

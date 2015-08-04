@@ -1,13 +1,15 @@
 import os
 from setuptools import setup
 
+import pyswarm
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
     name='pyswarm',
-    version="0.6",
-    author='Abraham Lee',
+    version=pyswarm.__version__,
+    author=pyswarm.__author__,
     author_email='tisimst@gmail.com',
     description='Particle swarm optimization (PSO) with constraint support',
     url='https://github.com/tisimst/pyswarm',
