@@ -1,17 +1,16 @@
 """
 ================================================================================
-pyswarm: Particle swarm optimization (PSO) with constraint support
+pyswarm: Particl swarm optimization (PSO) with constraint support
 ================================================================================
 
-Authors: Abraham Lee
-         Sebastian Castillo-Hair
-Copyright: 2013-2015
+Author: Abraham Lee
+Copyright: 2013
 
 """
 # from __future__ import absolute_import
 
 __author__ = 'Abraham Lee'
-__version__ = '0.7'
+__version__ = '0.5'
 
 from pyswarm.pso import *
     
