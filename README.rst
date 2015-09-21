@@ -8,10 +8,7 @@ for python that supports constraints.
 What's New
 ==========
 
-This is the initial release, but it should work out of the box. The syntax is
-similar to the other SciPy optimization routines (the ones like ``fmin_slsqp``).
-Currently, only a single objective is supported, but with any number of
-constraints (or none).
+This release features multiprocessing support.
 
 Requirements
 ============
